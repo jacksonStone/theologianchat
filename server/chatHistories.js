@@ -5,7 +5,7 @@ const { getTheologian } = require('./theologians');
 
 async function appendUserAndChatGPTResponse(chatId, userId, message) {
     const chat = await readChat(chatId, userId);
-
+    // TODO: On the first chat create a summary message and make that the title
     return appendChatMessages(chatId, userId, [{
         content: message,
         author: "user"
@@ -46,9 +46,15 @@ async function readChat(id, userId) {
     console.log("Found chatHistory: ", chatHistory)
     return chatHistory;
 }
+async function getChatList(userId) {
+    const chatHistoriesCollection = db.getDb().collection('ChatHistories');
+    // TODO Think of a smarter way to summerize
+    return chatHistoriesCollection.find({ userId }, { projection: { chatId: 1, theologianId: 1, firstMessage: {$first: "$messages"}} }).toArray();
+}
 
 module.exports = {
     appendUserAndChatGPTResponse,
     createNewChatHistory,
+    getChatList,
     readChat,
 };

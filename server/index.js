@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const { connect } = require('./mongodb');
-const { createNewChatHistory, readChat, appendChatMessages } = require('./chatHistories');
+const { createNewChatHistory, readChat, appendUserAndChatGPTResponse, getChatList } = require('./chatHistories');
 const { assert } = require('console');
 const { getTheologians } = require('./theologians');
 
@@ -28,6 +28,15 @@ app.get('/chat/:id', (req, res) => {
     let userId = "test"
 
     readChat(chatId, userId).then((result) => {
+        res.send(result);
+    });
+})
+
+app.get('/chats', (req, res) => {
+    // get chat history based on id and return it
+    let userId = "test"
+
+    getChatList(userId).then((result) => {
         res.send(result);
     });
 })
