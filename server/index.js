@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 
 // add a new chat message in the chat history
 // will get a reply from chatGPT and save that as well as return it to the user.
-app.post('/chat/:id', (req, res) => {
+app.post('/api/chat/:id', (req, res) => {
     let chatId = req.params.id;
     let message = req.body.message;
     let userId = "test"
@@ -22,17 +22,26 @@ app.post('/chat/:id', (req, res) => {
     })
 });
 
-app.get('/chat/:id', (req, res) => {
+// get chat history so far
+app.get('/api/chat/:id', (req, res) => {
+    let chatId = req.params.id;
+    let userId = "test"
+    readChat(chatId, userId).then((result) => {
+        res.send(result);
+    })
+});
+
+app.get('/api/chat-view/:id', (req, res) => {
     // get chat history based on id and return it
     let chatId = req.params.id;
     let userId = "test"
-
+    Promise.all(readChat(chatId, userId), )
     readChat(chatId, userId).then((result) => {
         res.send(result);
     });
 })
 
-app.get('/chats', (req, res) => {
+app.get('/api/chats', (req, res) => {
     // get chat history based on id and return it
     let userId = "test"
 
@@ -42,7 +51,7 @@ app.get('/chats', (req, res) => {
 })
 
 // create a new chat
-app.post('/chat', (req, res) => {
+app.post('/api/chat', (req, res) => {
     let theologianId = req.body.theologianId;
     let userId = "test"
 
@@ -53,7 +62,7 @@ app.post('/chat', (req, res) => {
 });
 
 // enumerate theologians
-app.get('/theologians', (req, res) => {
+app.get('/api/theologians', (req, res) => {
     getTheologians().then((result) => {
         res.send(result);
     })

@@ -1,27 +1,28 @@
 import './App.css';
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Link, useParams } from "react-router-dom";
-
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import  ChatDetail from "./ChatDetail"
+const getTheologianDetails = (theologians, id) => {
+  const theologian = theologians.find(theologian => theologian._id === id);
+  return theologian || null;
+}
 function App() {
   const [theologians, setTheologians] = useState([]);
   const [chats, setChats] = useState([]);
 
   useEffect(() => {
-    fetch("/theologians")
+    fetch("/api/theologians")
       .then((response) => response.json())
       .then((json) => setTheologians(json));
   }, []);
-  
+
   useEffect(() => {
-    fetch("/chats")
+    fetch("/api/chats")
       .then((response) => response.json())
       .then((json) => setChats(json));
   }, []);
 
-  const getTheologianDetails = (id) => {
-    const theologian = theologians.find(theologian => theologian._id === id);
-    return theologian || null;
-  }
+
 
   return (
     <Router>
@@ -31,9 +32,9 @@ function App() {
             <Route path="/" element={
               <div>
                 {chats.map(chat => {
-                  const theologian = getTheologianDetails(chat.theologianId);
+                  const theologian = getTheologianDetails(theologians, chat.theologianId);
                   return (
-                    <Link to={`/chat/${chat._id}`} key={chat._id}>
+                    <Link to={`/chat-history/${chat._id}`} key={chat._id}>
                       <div className="chat-item">
                         {theologian && <img src={theologian.imageUrl} alt={theologian.name} />}
                         <div>
@@ -50,28 +51,11 @@ function App() {
                 })}
               </div>
             } />
-            <Route path="/chat/:chatId" element={<ChatDetail chats={chats} getTheologianDetails={getTheologianDetails} />} />
+            <Route path="/chat-history/:chatId" element={<ChatDetail />} />
           </Routes>
         </header>
       </div>
     </Router>
-  );
-}
-
-function ChatDetail({ chats, getTheologianDetails }) {
-  const { chatId } = useParams();
-  const chat = chats.find(chat => chat._id === chatId);
-  // TODO :: Fetch detail chat, show chat message, maybe pull into a different file
-  if (!chat) return <div>Chat not found</div>;
-
-  const theologian = getTheologianDetails(chat.theologianId);
-
-  return (
-    <div>
-      <h1>Chat with {theologian ? theologian.name : 'Unknown Theologian'}</h1>
-      <p>{chat.firstMessage.content}</p>
-      {/* Display the rest of the chat history here */}
-    </div>
   );
 }
 
