@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import './App.css';
 const formattedMessage = (message) => {
     return { __html: message.replace(/\n/g, "<br />") }
 }
 function ChatDetail() {
-    const { chatId } = useParams();
-    const [chatDetail, setChatDetail] = useState({ messages: [] });
+  const { chatId } = useParams();
+  const navigate = useNavigate();
+  const [chatDetail, setChatDetail] = useState({ messages: [] });
     const [theologian, setTheologian] = useState({ name: '' });
     const [newMessage, setNewMessage] = useState('');
 
@@ -14,9 +15,11 @@ function ChatDetail() {
       fetchChatDetail();
     }, [chatId]);
 
+    const handleBack = () => {
+      navigate('/'); // Goes back to the homepage
+    }
+    
     const fetchChatDetail = async () => {
-    debugger;
-    console.log(chatId);
       const [chatHistory, theologians] = await Promise.all([
         fetch("/api/chat/" + chatId).then((response) => response.json()),
         (theologian.name ? Promise.resolve([theologian]) : fetch("/api/theologians").then((response) => response.json()))
@@ -46,8 +49,11 @@ function ChatDetail() {
 
     return (
         <div className="chat-container">
-          <div className="sticky-header">
-            <h1>Chat with {theologian.name}</h1>
+         <div className="header-container"> 
+            <button onClick={handleBack} className="back-button">
+              <span className="arrow-left"></span>
+            </button>
+            <h1 className="header-title">Chat with {theologian.name}</h1> {/* Add className */}
           </div>
           <div className="chat-content">
             {chatDetail.messages.map((message, i) => (

@@ -31,13 +31,20 @@ async function appendChatMessages(id, userId, messages) {
 async function createNewChatHistory(theologianId, userId) {
     const chatHistoriesCollection = db.getDb().collection('ChatHistories');
     const chatHistory = {
-        theologianId: new ObjectId(theologianId),
+        theologianId,
         userId,
         messages: [],
     };
     const result = await chatHistoriesCollection.insertOne(chatHistory);
     return result;
 }
+
+async function deleteChatHistory(id, userId) {
+    const chatHistoriesCollection = db.getDb().collection('ChatHistories');
+    await chatHistoriesCollection.deleteOne({ _id: new ObjectId(id), userId });
+    return;
+}
+
 
 
 async function readChat(id, userId) {
@@ -57,4 +64,5 @@ module.exports = {
     createNewChatHistory,
     getChatList,
     readChat,
+    deleteChatHistory
 };

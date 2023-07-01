@@ -88,3 +88,41 @@
 .chat-content {
   padding-top: 20px;
 }
+
+.back-button {
+  color: #fff;
+  background-color: #007aff;
+  border-radius: 15px;
+  padding: 10px 20px;
+  border: none;
+  font-size: 16px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  margin: 10px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.back-button .arrow-left {
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-right: 5px solid #fff;
+  margin-right: 10px;
+}
+
+.back-button:hover {
+  background-color: #0056b3;
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+}
+
+.header-title {
+  margin-left: 10px; 
+}

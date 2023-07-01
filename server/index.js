@@ -2,9 +2,10 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const { connect } = require('./mongodb');
-const { createNewChatHistory, readChat, appendUserAndChatGPTResponse, getChatList } = require('./chatHistories');
+const { createNewChatHistory, readChat, appendUserAndChatGPTResponse, getChatList, deleteChatHistory } = require('./chatHistories');
 const { assert } = require('console');
 const { getTheologians } = require('./theologians');
+const ObjectId = require('mongodb').ObjectId;
 
 const app = express();
 
@@ -17,6 +18,9 @@ app.post('/api/chat/:id', (req, res) => {
     let chatId = req.params.id;
     let message = req.body.message;
     let userId = "test"
+    if(!ObjectId.isValid(chatId)) {
+        return res.status(400).send({error: "Invalid chat id"});
+    }
     appendUserAndChatGPTResponse(chatId, userId, message).then((result) => {
         res.send(result);
     })
@@ -26,20 +30,26 @@ app.post('/api/chat/:id', (req, res) => {
 app.get('/api/chat/:id', (req, res) => {
     let chatId = req.params.id;
     let userId = "test"
+    if(!ObjectId.isValid(chatId)) {
+        return res.status(400).send({error: "Invalid chat id"});
+    }
     readChat(chatId, userId).then((result) => {
         res.send(result);
     })
 });
 
-app.get('/api/chat-view/:id', (req, res) => {
-    // get chat history based on id and return it
+// Delete a chat history
+app.delete('/api/chat/:id', (req, res) => {
     let chatId = req.params.id;
     let userId = "test"
-    Promise.all(readChat(chatId, userId), )
-    readChat(chatId, userId).then((result) => {
-        res.send(result);
-    });
-})
+    if(!ObjectId.isValid(chatId)) {
+        return res.status(400).send({error: "Invalid chat id"});
+    }
+    deleteChatHistory(chatId, userId).then(() => {
+        res.send({});
+    })
+});
+
 
 app.get('/api/chats', (req, res) => {
     // get chat history based on id and return it
@@ -55,7 +65,7 @@ app.post('/api/chat', (req, res) => {
     let theologianId = req.body.theologianId;
     let userId = "test"
 
-    assert(theologianId && message);
+    assert(theologianId);
     createNewChatHistory(theologianId, userId).then((result) => {
         res.send(result);
     })
