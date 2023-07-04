@@ -1,29 +1,4 @@
 /* Chat.css */
-.chat-item {
-  display: flex;
-  align-items: flex-start;
-  padding: 10px;
-  margin-bottom: 15px;
-}
-
-.chat-item img {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  margin-right: 10px;
-}
-
-.chat-item .message-content {
-  margin-left: 10px;
-  font-size: 16px;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.chat-item .theologian-details {
-  font-size: 14px;
-  color: #888;
-}
 
 .chat-container {
   display: flex;
@@ -124,5 +99,5 @@
 }
 
 .header-title {
-  margin-left: 10px; 
+  margin-left: 10px;
 }
