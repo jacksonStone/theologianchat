@@ -21,7 +21,7 @@
   },
   "proxy": "http://localhost:3000",
   "scripts": {
-    "start": "PORT=3001 react-scripts start",
+    "start": "PORT=3001 react-scripts start  --disable-service-worker",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",

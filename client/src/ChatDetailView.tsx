@@ -23,6 +23,7 @@ const fetchChatDetail = async (
     });
 };
 
+// TODO:: Don't refecth Theologians if navigating from a different page.
 function ChatDetailView() {
   const { chatId } = useParams<{ chatId: string }>();
   const navigate = useNavigate();
