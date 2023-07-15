@@ -8,7 +8,6 @@ const formattedMessage = (message: string) => {
 };
 const fetchChatDetail = async (
   chatId: string,
-  theologian: Theologian,
   setChatDetail: (chatDetail: ChatDetail) => void,
   setTheologian: (theologian: Theologian) => void,
 ) => {
@@ -35,8 +34,8 @@ function ChatDetailView() {
   const [newMessage, setNewMessage] = useState<string>('');
 
   useEffect(() => {
-    fetchChatDetail(chatId as string, theologian, setChatDetail, setTheologian);
-  }, []);
+    fetchChatDetail(chatId as string, setChatDetail, setTheologian);
+  }, [chatId]);
 
   const handleBack = () => {
     navigate('/'); // Goes back to the homepage
@@ -48,6 +47,7 @@ function ChatDetailView() {
       messages: [...chatDetail.messages, { author: 'user', content: newMessage }],
     };
     setChatDetail(updatedChatDetail);
+    setNewMessage('');
 
     fetch('/api/chat/' + chatId, {
       method: 'POST',
@@ -56,8 +56,7 @@ function ChatDetailView() {
       },
       body: JSON.stringify({ message: newMessage }),
     }).then(() => {
-      setNewMessage('');
-      fetchChatDetail(chatId as string, theologian, setChatDetail, setTheologian);
+      fetchChatDetail(chatId as string, setChatDetail, setTheologian);
     });
   };
 

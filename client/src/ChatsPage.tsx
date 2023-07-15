@@ -2,17 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './ChatPage.css';
-import { ChatPreview, Theologian, CreateChatResponse, defaultTheologian } from './shared';
-
-const fetchChats = (): Promise<ChatPreview[]> => fetch('/api/chats').then((response) => response.json());
-const fetchTheologians = (): Promise<Theologian[]> => fetch('/api/theologians').then((response) => response.json());
-const deleteChat = (id: string) => fetch(`/api/chat/${id}`, { method: 'DELETE' });
-const createChat = (selectedTheologian: string): Promise<CreateChatResponse> =>
-  fetch('/api/chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ theologianId: selectedTheologian }),
-  }).then((response) => response.json());
+import { ChatPreview, Theologian, defaultTheologian, fetchTheologians, fetchChats, deleteChat } from './shared';
 
 function ChatsPage() {
   const [theologians, setTheologians] = useState<Theologian[]>([]);
@@ -26,23 +16,13 @@ function ChatsPage() {
   }, []);
 
   const deleteChatThenFetch = (id: string) => deleteChat(id).then(() => fetchChats().then(setChats));
-  const createThenNavigate = () =>
-    createChat(selectedTheologian).then((newChat) => navigate(`/chat-history/${newChat.insertedId}`));
 
   return (
     <div className="chats-page">
       <header className="header">
-        <select value={selectedTheologian} onChange={(e) => setSelectedTheologian(e.target.value)} className="dropdown">
-          <option value="">Select a theologian...</option>
-          {theologians.map((theologian) => (
-            <option value={theologian._id} key={theologian._id}>
-              {theologian.name}
-            </option>
-          ))}
-        </select>
-        <button onClick={createThenNavigate} disabled={!selectedTheologian} className="start-chat">
+        <Link to="/create-chat" className="start-chat">
           Start a new chat
-        </button>
+        </Link>
       </header>
       <div className="chat-list">
         {chats.map((chat) => {
