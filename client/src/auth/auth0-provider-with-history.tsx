@@ -13,7 +13,7 @@ const Auth0ProviderWithHistory = ({ children }: Auth0ProviderWithHistoryProps) =
   const navigate = useNavigate();
 
   const onRedirectCallback = (appState: any) => {
-    navigate(appState?.returnTo || window.location.pathname);
+    navigate('/chats');
   };
 
   return (
@@ -22,7 +22,7 @@ const Auth0ProviderWithHistory = ({ children }: Auth0ProviderWithHistoryProps) =
       clientId={clientId}
       authorizationParams={{
         redirect_uri: window.location.origin + '/chats',
-        // audience,
+        audience,
       }}
       onRedirectCallback={onRedirectCallback}
     >

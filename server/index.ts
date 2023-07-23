@@ -12,18 +12,33 @@ import {
 import assert from 'assert';
 import { getTheologians } from './theologians';
 import { ObjectId } from 'mongodb';
-
+const domain = "https://dev-n5lqn876w8gelndk.us.auth0.com/";
 const app = express();
+import { auth } from 'express-oauth2-jwt-bearer';
+function parseJwt(token: string) {
+  return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+}
+// Authorization middleware. When used, the Access Token must
+// exist and be verified against the Auth0 JSON Web Key Set.
+const checkJwt = auth({
+  audience: 'theologian.chat',
+  issuerBaseURL: domain,
+});
+
+function getUserInfo(req: express.Request) {
+  (req as any).user = parseJwt(req.headers?.authorization || "");
+}
 
 // middleware to parse request bodies
 app.use(bodyParser.json());
 
 // add a new chat message in the chat history
 // will get a reply from chatGPT and save that as well as return it to the user.
-app.post('/api/chat/:id', (req: express.Request, res: express.Response) => {
+app.post('/api/chat/:id', checkJwt, async (req: express.Request, res: express.Response) => {
   const chatId: string = req.params.id;
   const message: string = req.body.message;
-  const userId = 'test';
+  getUserInfo(req);
+  const userId = (req as any).user.sub;
   if (!ObjectId.isValid(chatId)) {
     return res.status(400).send({ error: 'Invalid chat id' });
   }
@@ -33,9 +48,12 @@ app.post('/api/chat/:id', (req: express.Request, res: express.Response) => {
 });
 
 // get chat history so far
-app.get('/api/chat/:id', (req: express.Request, res: express.Response) => {
+app.get('/api/chat/:id', checkJwt, async (req: express.Request, res: express.Response) => {
+
+  getUserInfo(req);
+  const userId = (req as any).user.sub;
   const chatId: string = req.params.id;
-  const userId = 'test';
+  console.log((req as any).user);
   if (!ObjectId.isValid(chatId)) {
     return res.status(400).send({ error: 'Invalid chat id' });
   }
@@ -45,9 +63,10 @@ app.get('/api/chat/:id', (req: express.Request, res: express.Response) => {
 });
 
 // Delete a chat history
-app.delete('/api/chat/:id', (req: express.Request, res: express.Response) => {
+app.delete('/api/chat/:id', checkJwt, async (req: express.Request, res: express.Response) => {
   const chatId: string = req.params.id;
-  const userId = 'test';
+  getUserInfo(req);
+  const userId = (req as any).user.sub;
   if (!ObjectId.isValid(chatId)) {
     return res.status(400).send({ error: 'Invalid chat id' });
   }
@@ -56,9 +75,10 @@ app.delete('/api/chat/:id', (req: express.Request, res: express.Response) => {
   });
 });
 
-app.get('/api/chats', (req: express.Request, res: express.Response) => {
+app.get('/api/chats', checkJwt, async (req: express.Request, res: express.Response) => {
   // get chat history based on id and return it
-  const userId = 'test';
+  getUserInfo(req);
+  const userId = (req as any).user.sub;
 
   getChatList(userId).then((result) => {
     res.send(result);
@@ -66,9 +86,10 @@ app.get('/api/chats', (req: express.Request, res: express.Response) => {
 });
 
 // create a new chat
-app.post('/api/chat', (req: express.Request, res: express.Response) => {
+app.post('/api/chat', checkJwt, async (req: express.Request, res: express.Response) => {
   const theologianId: string = req.body.theologianId;
-  const userId = 'test';
+  getUserInfo(req);
+  const userId = (req as any).user.sub;
 
   assert(theologianId);
   createNewChatHistory(theologianId, userId).then((result) => {

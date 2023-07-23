@@ -33,14 +33,4 @@ interface ChatDetail {
 
 export type { Theologian, ChatPreview, Message, ChatDetail, CreateChatResponse };
 
-const fetchChats = (): Promise<ChatPreview[]> => fetch('/api/chats').then((response) => response.json());
-const fetchTheologians = (): Promise<Theologian[]> => fetch('/api/theologians').then((response) => response.json());
-const deleteChat = (id: string) => fetch(`/api/chat/${id}`, { method: 'DELETE' });
-const createChat = (selectedTheologian: string): Promise<CreateChatResponse> =>
-  fetch('/api/chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ theologianId: selectedTheologian }),
-  }).then((response) => response.json());
-
-export { defaultTheologian, fetchChats, fetchTheologians, deleteChat, createChat };
+export { defaultTheologian };
