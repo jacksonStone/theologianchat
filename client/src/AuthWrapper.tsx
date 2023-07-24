@@ -8,7 +8,7 @@ interface Auth0ProviderWithHistoryProps {
 const Auth0ProviderWithHistory = ({ children }: Auth0ProviderWithHistoryProps) => {
   const domain = process.env.REACT_APP_AUTH0_DOMAIN as string;
   const clientId = process.env.REACT_APP_AUTH0_CLIENT_ID as string;
-  const audience = process.env.REACT_APP_AUTH0_AUDIENCE as string;
+  const audience = 'theologian.chat';
 
   const navigate = useNavigate();
 

@@ -1,4 +1,4 @@
-import { Configuration, OpenAIApi , ChatCompletionRequestMessageRoleEnum} from "openai";
+import { Configuration, OpenAIApi, ChatCompletionRequestMessageRoleEnum } from 'openai';
 
 console.log(`Has Key OPENAI_API_KEY: ${!!process.env.OPENAI_API_KEY}`);
 
@@ -25,17 +25,23 @@ async function sendTextToChatGPT(
   const messages: ChatGPTMessage[] = [
     { role: ChatCompletionRequestMessageRoleEnum.System, content: theologianPropmt },
     ...pastMessages.map((message) => {
-      return { role: message.author === 'user' ? ChatCompletionRequestMessageRoleEnum.User : ChatCompletionRequestMessageRoleEnum.Assistant, content: message.content };
+      return {
+        role:
+          message.author === 'user'
+            ? ChatCompletionRequestMessageRoleEnum.User
+            : ChatCompletionRequestMessageRoleEnum.Assistant,
+        content: message.content,
+      };
     }),
     { role: ChatCompletionRequestMessageRoleEnum.User, content: userPrompt },
   ];
   try {
     const chatResponse = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
+      model: 'gpt-3.5-turbo',
       messages,
     });
-    if(!chatResponse.data.choices[0].message?.content) {
-      throw new Error("No message in response");
+    if (!chatResponse.data.choices[0].message?.content) {
+      throw new Error('No message in response');
     }
     return chatResponse.data.choices[0].message.content;
   } catch (e) {

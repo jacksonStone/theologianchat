@@ -86,9 +86,13 @@ function ChatDetailView() {
         ))}
         <div className="message-input-area">
           <textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} className="message-input" />
-          <button onClick={handleSend} className="send-button">
-            Send
-          </button>
+          {chatDetail.messages.length < 8 ? (
+            <button onClick={handleSend} className="send-button">
+              Send
+            </button>
+          ) : (
+            <div> Max messages reached. Try starting a new conversation</div>
+          )}
         </div>
       </div>
     </div>

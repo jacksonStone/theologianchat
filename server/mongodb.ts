@@ -1,6 +1,5 @@
 import { MongoClient, Db } from 'mongodb';
 
-// You should ideally store this in environment variables, never hardcode this in real applications
 const url = process.env.MONGODB_URI || '';
 const dbName = 'theologianchat';
 
