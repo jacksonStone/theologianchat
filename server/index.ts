@@ -123,6 +123,5 @@ app.get('*', (req: express.Request, res: express.Response) =>
   res.sendFile(path.join(__dirname, 'public', 'index.html')),
 );
 connect().then(() => {
-  const port = 3000;
-  app.listen(port, () => console.log(`Server running on port ${port}`));
+  app.listen(process.env.PORT || 3000, () => console.log(`Server running on port ${port}`));
 });
