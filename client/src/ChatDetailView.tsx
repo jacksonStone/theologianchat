@@ -49,7 +49,7 @@ function ChatDetailView() {
   }, [getAccessTokenSilently]);
 
   const handleBack = () => {
-    navigate('/'); // Goes back to the homepage
+    navigate('/chats'); // Goes back to the chats
   };
 
   const handleSend = () => {

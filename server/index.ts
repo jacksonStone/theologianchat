@@ -36,6 +36,7 @@ app.use(bodyParser.json());
 // Caused infinite redirect loop
 app.use(function(request, response, next) {
   if (process.env.NODE_ENV !== 'development') {
+    // Heroku supplies this header and it communicates the original http/https protocol used
     const httpOrHttps = request.headers["x-forwarded-proto"] as string;
     if (!httpOrHttps) {
       next();
