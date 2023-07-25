@@ -33,12 +33,13 @@ function getUserInfo(req: express.Request) {
 
 // middleware to parse request bodies
 app.use(bodyParser.json());
-app.use(function(request, response, next) {
-  if (process.env.NODE_ENV !== 'development' && !request.secure) {
-     return response.redirect("https://" + request.headers.host + request.url);
-  }
-  next();
-})
+// Caused infinite redirect loop
+// app.use(function(request, response, next) {
+//   if (process.env.NODE_ENV !== 'development' && !request.secure) {
+//      return response.redirect("https://" + request.headers.host + request.url);
+//   }
+//   next();
+// })
 // add a new chat message in the chat history
 // will get a reply from chatGPT and save that as well as return it to the user.
 app.post('/api/chat/:id', checkJwt, async (req: express.Request, res: express.Response, next: NextFunction) => {
