@@ -22,7 +22,7 @@ const fetchChatDetail = async (
 
 // TODO:: Don't refecth Theologians if navigating from a different page.
 function ChatDetailView() {
-  const { getAccessTokenSilently } = useAuth0();
+  const { getAccessTokenSilently, logout } = useAuth0();
 
   const { chatId } = useParams<{ chatId: string }>();
   const navigate = useNavigate();
@@ -35,7 +35,9 @@ function ChatDetailView() {
   const [accessToken, setAccessToken] = useState<string>('');
 
   useEffect(() => {
-    if (!accessToken) return;
+    if (!accessToken) {
+      return;
+    }
     fetchChatDetail(chatId as string, setChatDetail, setTheologian, accessToken);
   }, [chatId, accessToken]);
 
@@ -43,6 +45,10 @@ function ChatDetailView() {
     async function getAccessToken() {
       // const audience = process.env.REACT_APP_AUTH0_AUDIENCE as string;
       const accessToken = await getAccessTokenSilently();
+      if (!accessToken) {
+        logout({ logoutParams: { returnTo: window.location.origin } });
+        return;
+      }
       setAccessToken(accessToken);
     }
     getAccessToken();

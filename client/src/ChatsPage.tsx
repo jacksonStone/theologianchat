@@ -10,16 +10,22 @@ function ChatsPage() {
   const [theologians, setTheologians] = useState<Theologian[]>([]);
   const [chats, setChats] = useState<ChatPreview[]>([]);
   const [accessToken, setAccessToken] = useState<string>('');
-  const { getAccessTokenSilently } = useAuth0();
+  const { getAccessTokenSilently, logout } = useAuth0();
   useEffect(() => {
     async function getAccessToken() {
       const accessToken = await getAccessTokenSilently();
+      if (!accessToken) {
+        logout({ logoutParams: { returnTo: window.location.origin } });
+        return;
+      }
       setAccessToken(accessToken);
     }
     getAccessToken();
   }, [getAccessTokenSilently]);
   useEffect(() => {
-    if (!accessToken) return;
+    if (!accessToken) {
+      return;
+    }
     fetchTheologians().then(setTheologians);
     fetchChats(accessToken).then(setChats);
   }, [accessToken]);

@@ -3,8 +3,7 @@ import './HomeStyles.css';
 import { useNavigate } from 'react-router-dom';
 
 function Home() {
-  const navigate = useNavigate();
-  const { loginWithRedirect } = useAuth0();
+  const { loginWithRedirect, logout } = useAuth0();
 
   return (
     <div className="Home">
@@ -29,6 +28,9 @@ function Home() {
                 }
               >
                 Start Chatting Today!
+              </button>
+              <button className="Home-button-2" onClick={() => logout()}>
+                Test Logout
               </button>
             </div>
           </div>

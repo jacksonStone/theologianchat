@@ -10,7 +10,7 @@ function CreateChatPage() {
   const [selectedTheologian, setSelectedTheologian] = useState<string>('');
   const navigate = useNavigate();
   const [accessToken, setAccessToken] = useState<string>('');
-  const { getAccessTokenSilently } = useAuth0();
+  const { getAccessTokenSilently, logout } = useAuth0();
   useEffect(() => {
     fetchTheologians().then(setTheologians);
   }, []);
@@ -18,6 +18,10 @@ function CreateChatPage() {
   useEffect(() => {
     async function getAccessToken() {
       const accessToken = await getAccessTokenSilently();
+      if (!accessToken) {
+        logout({ logoutParams: { returnTo: window.location.origin } });
+        return;
+      }
       setAccessToken(accessToken);
     }
     getAccessToken();
@@ -37,9 +41,13 @@ function CreateChatPage() {
             </option>
           ))}
         </select>
-        <button onClick={createThenNavigate} disabled={!selectedTheologian} className="start-chat">
-          Start a new chat
-        </button>
+        {accessToken ? (
+          <button onClick={createThenNavigate} disabled={!selectedTheologian} className="start-chat">
+            Start a new chat
+          </button>
+        ) : (
+          <></>
+        )}
       </header>
     </div>
   );
