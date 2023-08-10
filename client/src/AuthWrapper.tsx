@@ -23,6 +23,7 @@ const Auth0ProviderWithHistory = ({ children }: Auth0ProviderWithHistoryProps) =
       authorizationParams={{
         redirect_uri: window.location.origin + '/chats',
         audience,
+        cache_location: 'localstorage',
       }}
       onRedirectCallback={onRedirectCallback}
     >

@@ -37,7 +37,7 @@ async function sendTextToChatGPT(
   ];
   try {
     const chatResponse = await openai.createChatCompletion({
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4',
       messages,
     });
     if (!chatResponse.data.choices[0].message?.content) {

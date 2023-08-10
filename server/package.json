@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "test-script": "ts-node experimentalChat.ts",
     "start": "NODE_ENV=development AUTH0_DOMAIN='https://dev-n5lqn876w8gelndk.us.auth0.com/' ts-node ./index.ts",
     "sync_theologians": "ts-node ./createTheologians.ts",
     "lint": "eslint './**/*.{js,ts}'",

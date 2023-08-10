@@ -28,8 +28,6 @@ const checkJwt = auth({
 });
 
 function getUserInfo(req: express.Request) {
-  console.log("req.headers?.authorization");
-  console.log(req.headers?.authorization);
   (req as any).user = parseJwt(req.headers?.authorization || '');
 }
 
