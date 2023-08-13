@@ -23,6 +23,12 @@ async function getTheologians(): Promise<PartialTheologian[]> {
     .toArray() as unknown as Promise<PartialTheologian[]>;
 }
 
+async function deleteTestChats(): Promise<any> {
+  return getDb()
+    .collection('ChatHistories')
+    .deleteMany({userId:"test"})
+}
+
 async function upsertTheologian(name: string, prompt: string, description: string, imageUrl: string): Promise<void> {
   const theologians = getDb().collection('Theologians');
   const maybeTheologian = await theologians.findOne({ name });
@@ -73,4 +79,4 @@ async function getTheologian(id: string): Promise<Theologian | null> {
   return theologians.findOne({ _id: new ObjectId(id) }) as Promise<Theologian | null>;
 }
 
-export { getTheologian, getTheologians, upsertTheologian, updateTheologian, createNewTheologian };
+export { getTheologian, deleteTestChats, getTheologians, upsertTheologian, updateTheologian, createNewTheologian };
