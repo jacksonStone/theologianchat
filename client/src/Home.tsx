@@ -29,9 +29,6 @@ function Home() {
               >
                 Start Chatting Today!
               </button>
-              <button className="Home-button-2" onClick={() => logout()}>
-                Test Logout
-              </button>
             </div>
           </div>
         </div>
