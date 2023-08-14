@@ -2,6 +2,7 @@ import { getDb } from './mongodb';
 import { ObjectId, UpdateResult, InsertOneResult, DeleteResult } from 'mongodb';
 import { sendTextToChatGPT } from './chatgpt';
 import { getTheologian } from './theologians';
+import { createJob, resolveJob, cancelJob } from './batchJobs';
 
 interface PartialChat {
   _id: string;
@@ -19,7 +20,7 @@ interface Chat {
   messages: Message[];
 }
 
-async function appendUserAndChatGPTResponse(chatId: string, userId: string, message: string): Promise<UpdateResult> {
+async function appendUserAndChatGPTResponse(chatId: string, userId: string, message: string): Promise<any> {
   const chat = await readChat(chatId, userId);
   if (!chat) {
     // TODO:: Better error handling
@@ -30,16 +31,31 @@ async function appendUserAndChatGPTResponse(chatId: string, userId: string, mess
     // TODO:: Better error handling
     throw new Error('Theologian not found');
   }
-  return appendChatMessages(chatId, userId, [
-    {
-      content: message,
-      author: 'user',
-    },
-    {
-      content: await sendTextToChatGPT(message, theologian.prompt, chat.messages),
-      author: 'theologian',
-    },
+  
+  const userMessage: Message = {
+    content: message,
+    author: 'user',
+  };
+  let aiReply = "";
+  await Promise.all([
+    createJob(chatId, userId, chat.messages.concat([userMessage])),
+    appendChatMessages(chatId, userId, [userMessage])
   ]);
+  sendTextToChatGPT(message, theologian.prompt, chat.messages).then(reply => {
+    aiReply = reply;
+    return appendChatMessages(chatId, userId, [
+      {
+        content: reply ,
+        author: 'theologian',
+      },
+    ])
+  })
+ .then(async () => {
+    return resolveJob(chatId, userId, aiReply);
+  })
+  .catch(() => {
+    cancelJob(chatId, userId);
+  });
 }
 
 async function appendChatMessages(id: string, userId: string, messages: Message[]): Promise<UpdateResult> {

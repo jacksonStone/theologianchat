@@ -9,6 +9,9 @@ import {
   getChatList,
   deleteChatHistory,
 } from './chatHistories';
+import {
+  readOnGoingJob
+} from "./batchJobs";
 import assert from 'assert';
 import { getTheologians } from './theologians';
 import { ObjectId } from 'mongodb';
@@ -48,6 +51,17 @@ app.use(function(request, response, next) {
   }
   next();
 })
+app.get('/api/chat/job/:id', checkJwt, async (req: express.Request, res: express.Response, next: NextFunction) => {
+  const chatId: string = req.params.id;
+  getUserInfo(req);
+  if (!ObjectId.isValid(chatId)) {
+    return res.status(400).send({ error: 'Invalid chat id' });
+  }
+  const userId = (req as any).user.sub;
+  readOnGoingJob(chatId, userId).then((result) => {
+    res.send(result)
+  }).catch(next);
+})
 // add a new chat message in the chat history
 // will get a reply from chatGPT and save that as well as return it to the user.
 app.post('/api/chat/:id', checkJwt, async (req: express.Request, res: express.Response, next: NextFunction) => {
@@ -56,11 +70,11 @@ app.post('/api/chat/:id', checkJwt, async (req: express.Request, res: express.Re
   const message: string = req.body.message;
   getUserInfo(req);
   const userId = (req as any).user.sub;
+
   if (!ObjectId.isValid(chatId)) {
     return res.status(400).send({ error: 'Invalid chat id' });
   }
   // Allow it to get a really long time to respond
-  req.setTimeout(500000, next);
   appendUserAndChatGPTResponse(chatId, userId, message)
     .then((result) => {
       res.send(result);

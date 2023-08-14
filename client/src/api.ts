@@ -8,6 +8,16 @@ function getChat(chatId: string, accessToken: string): Promise<ChatDetail> {
   }).then((response) => response.json());
 }
 
+function fetchOnGoingMessage(chatId: string, accessToken: string): Promise<boolean> {
+  return fetch('/api/chat/job/' + chatId, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  })
+    .then((response) => response.json())
+    .then((result) => !!result);
+}
+
 async function postToChat(chatId: string, newMessage: string, accessToken: string): Promise<void> {
   await fetch('/api/chat/' + chatId, {
     method: 'POST',
@@ -40,4 +50,4 @@ const createChat = (selectedTheologian: string, accessToken: string): Promise<Cr
     body: JSON.stringify({ theologianId: selectedTheologian }),
   }).then((response) => response.json());
 
-export { getChat, fetchChats, fetchTheologians, deleteChat, createChat, postToChat };
+export { getChat, fetchChats, fetchTheologians, fetchOnGoingMessage, deleteChat, createChat, postToChat };
