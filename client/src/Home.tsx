@@ -14,8 +14,7 @@ const handleAuth = async (email: string, password: string, route: string) => {
     });
 
     if (response.status === 200) {
-      // window.location.href = '/chats';
-      // Optionally redirect or do something else after a successful signup
+      window.location.href = '/chats';
     } else {
       const errorData = await response.json();
       console.error('Error creating user:', errorData);
