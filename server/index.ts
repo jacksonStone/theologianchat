@@ -15,23 +15,23 @@ import {
 import assert from 'assert';
 import { getTheologians } from './theologians';
 import { ObjectId } from 'mongodb';
-import { auth } from 'express-oauth2-jwt-bearer';
+import { createUser, getUserByEmail } from './User';
+import auth from './auth';
 
-const domain = process.env.AUTH0_DOMAIN || '';
 const app = express();
 
-function parseJwt(token: string) {
-  return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+type SAFE_user = {
+  userId: string
+  userEmail: string
 }
-// Authorization middleware. When used, the Access Token must
-// exist and be verified against the Auth0 JSON Web Key Set.
-const checkJwt = auth({
-  audience: 'theologian.chat',
-  issuerBaseURL: domain,
-});
-
-function getUserInfo(req: express.Request) {
-  (req as any).user = parseJwt(req.headers?.authorization || '');
+function getUser(req: express.Request): SAFE_user|undefined {
+  const rawCookieHeader = req.headers.cookie
+  try {
+    const cookieContents = auth.attemptCookieDecryption(rawCookieHeader)
+    return JSON.parse(cookieContents) as SAFE_user;
+  } catch(e) {
+    console.log(e);
+  }
 }
 
 // middleware to parse request bodies
@@ -51,25 +51,72 @@ app.use(function(request, response, next) {
   }
   next();
 })
-app.get('/api/chat/job/:id', checkJwt, async (req: express.Request, res: express.Response, next: NextFunction) => {
+
+app.post('/api/user/create', async (req: express.Request, res: express.Response, next: NextFunction) => {
+  console.log("Create!");
+
+  const email = req.body.email;
+  const password = req.body.password;
+  if (!email || !password) {
+    return res.status(400).send({error: "failed to provide email and password"});
+  }
+  const currentUser = await getUserByEmail(email);
+  if(currentUser) {
+    return res.status(400).send({error: "email already allocated"});
+  }
+  await createUser(email, password);
+  const newUser = await getUserByEmail(email);
+  const cookieHeader = await auth.attemptLoginAndGetCookie(newUser, password);
+  res.setHeader("Set-Cookie", cookieHeader);
+  res.send("ok");
+  next();
+})
+app.post("/api/user/login", async (req: express.Request, res: express.Response, next: NextFunction) => {
+  console.log("Login");
+  const email = req.body.email;
+  const password = req.body.password;
+  if (!email || !password) {
+    return res.status(400).send({error: "failed to provide email and password"});
+  }
+  try {
+    const currentUser = await getUserByEmail(email);
+    if(!currentUser) {
+      return res.status(400).send({error: "no user"});
+    }
+    const cookie = await auth.attemptLoginAndGetCookie(currentUser, password);
+    res.setHeader("Set-Cookie", cookie);
+    res.send("ok");
+  } catch(e) {
+    next(e);
+  }
+  next();
+
+})
+app.get('/api/chat/job/:id', async (req: express.Request, res: express.Response, next: NextFunction) => {
   const chatId: string = req.params.id;
-  getUserInfo(req);
   if (!ObjectId.isValid(chatId)) {
     return res.status(400).send({ error: 'Invalid chat id' });
   }
-  const userId = (req as any).user.sub;
+  const user = getUser(req);
+  if(!user) {
+    return res.redirect("https://" + req.headers.host);
+  }
+  const userId = user.userId;
   readOnGoingJob(chatId, userId).then((result) => {
     res.send(result)
   }).catch(next);
 })
 // add a new chat message in the chat history
 // will get a reply from chatGPT and save that as well as return it to the user.
-app.post('/api/chat/:id', checkJwt, async (req: express.Request, res: express.Response, next: NextFunction) => {
+app.post('/api/chat/:id', async (req: express.Request, res: express.Response, next: NextFunction) => {
   
   const chatId: string = req.params.id;
   const message: string = req.body.message;
-  getUserInfo(req);
-  const userId = (req as any).user.sub;
+  const user = getUser(req);
+  if(!user) {
+    return res.redirect("https://" + req.headers.host);
+  }
+  const userId = user.userId;
 
   if (!ObjectId.isValid(chatId)) {
     return res.status(400).send({ error: 'Invalid chat id' });
@@ -83,11 +130,14 @@ app.post('/api/chat/:id', checkJwt, async (req: express.Request, res: express.Re
 });
 
 // get chat history so far
-app.get('/api/chat/:id', checkJwt, async (req: express.Request, res: express.Response, next: NextFunction) => {
-  getUserInfo(req);
-  const userId = (req as any).user.sub;
+app.get('/api/chat/:id', async (req: express.Request, res: express.Response, next: NextFunction) => {
+  const user = getUser(req);
+  if(!user) {
+    return res.redirect("https://" + req.headers.host);
+  }
+  const userId = user.userId;
   const chatId: string = req.params.id;
-  console.log((req as any).user);
+
   if (!ObjectId.isValid(chatId)) {
     return res.status(400).send({ error: 'Invalid chat id' });
   }
@@ -99,10 +149,13 @@ app.get('/api/chat/:id', checkJwt, async (req: express.Request, res: express.Res
 });
 
 // Delete a chat history
-app.delete('/api/chat/:id', checkJwt, async (req: express.Request, res: express.Response, next: NextFunction) => {
+app.delete('/api/chat/:id', async (req: express.Request, res: express.Response, next: NextFunction) => {
   const chatId: string = req.params.id;
-  getUserInfo(req);
-  const userId = (req as any).user.sub;
+  const user = getUser(req);
+  if(!user) {
+    return res.redirect("https://" + req.headers.host);
+  }
+  const userId = user.userId;
   if (!ObjectId.isValid(chatId)) {
     return res.status(400).send({ error: 'Invalid chat id' });
   }
@@ -113,11 +166,14 @@ app.delete('/api/chat/:id', checkJwt, async (req: express.Request, res: express.
     .catch(next);
 });
 
-app.get('/api/chats', checkJwt, async (req: express.Request, res: express.Response, next: NextFunction) => {
+app.get('/api/chats', async (req: express.Request, res: express.Response, next: NextFunction) => {
   // get chat history based on id and return it
-  getUserInfo(req);
-  const userId = (req as any).user.sub;
-
+  const user = getUser(req);
+  if(!user) {
+    return res.redirect("https://" + req.headers.host);
+  }
+  const userId = user.userId;
+  
   getChatList(userId)
     .then((result) => {
       res.send(result);
@@ -126,10 +182,13 @@ app.get('/api/chats', checkJwt, async (req: express.Request, res: express.Respon
 });
 
 // create a new chat
-app.post('/api/chat', checkJwt, async (req: express.Request, res: express.Response, next: NextFunction) => {
+app.post('/api/chat', async (req: express.Request, res: express.Response, next: NextFunction) => {
   const theologianId: string = req.body.theologianId;
-  getUserInfo(req);
-  const userId = (req as any).user.sub;
+  const user = getUser(req);
+  if(!user) {
+    return res.redirect("https://" + req.headers.host);
+  }
+  const userId = user.userId;
 
   assert(theologianId);
   createNewChatHistory(theologianId, userId)

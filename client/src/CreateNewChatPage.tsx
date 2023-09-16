@@ -3,32 +3,17 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Theologian } from './shared';
 import { fetchTheologians, createChat } from './api';
-import { useAuth0 } from '@auth0/auth0-react';
 
 function CreateChatPage() {
   const [theologians, setTheologians] = useState<Theologian[]>([]);
   const [selectedTheologian, setSelectedTheologian] = useState<string>('');
   const navigate = useNavigate();
-  const [accessToken, setAccessToken] = useState<string>('');
-  const { getAccessTokenSilently, logout } = useAuth0();
   useEffect(() => {
     fetchTheologians().then(setTheologians);
   }, []);
 
-  useEffect(() => {
-    async function getAccessToken() {
-      const accessToken = await getAccessTokenSilently();
-      if (!accessToken) {
-        logout({ logoutParams: { returnTo: window.location.origin } });
-        return;
-      }
-      setAccessToken(accessToken);
-    }
-    getAccessToken();
-  }, [getAccessTokenSilently]);
-
   const createThenNavigate = () =>
-    createChat(selectedTheologian, accessToken).then((newChat) => navigate(`/chat-history/${newChat.insertedId}`));
+    createChat(selectedTheologian).then((newChat) => navigate(`/chat-history/${newChat.insertedId}`));
 
   return (
     <div className="create-chat-page">
@@ -41,13 +26,9 @@ function CreateChatPage() {
             </option>
           ))}
         </select>
-        {accessToken ? (
-          <button onClick={createThenNavigate} disabled={!selectedTheologian} className="start-chat">
-            Start a new chat
-          </button>
-        ) : (
-          <></>
-        )}
+        <button onClick={createThenNavigate} disabled={!selectedTheologian} className="start-chat">
+          Start a new chat
+        </button>
       </header>
     </div>
   );

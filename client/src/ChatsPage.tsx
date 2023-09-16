@@ -4,34 +4,16 @@ import { Link } from 'react-router-dom';
 import './ChatPage.css';
 import { fetchTheologians, fetchChats, deleteChat } from './api';
 import { ChatPreview, Theologian, defaultTheologian } from './shared';
-import { useAuth0 } from '@auth0/auth0-react';
 
 function ChatsPage() {
   const [theologians, setTheologians] = useState<Theologian[]>([]);
   const [chats, setChats] = useState<ChatPreview[]>([]);
-  const [accessToken, setAccessToken] = useState<string>('');
-  const { getAccessTokenSilently, logout } = useAuth0();
   useEffect(() => {
-    async function getAccessToken() {
-      const accessToken = await getAccessTokenSilently();
-      if (!accessToken) {
-        logout({ logoutParams: { returnTo: window.location.origin } });
-        return;
-      }
-      setAccessToken(accessToken);
-    }
-    getAccessToken();
-  }, [getAccessTokenSilently]);
-  useEffect(() => {
-    if (!accessToken) {
-      return;
-    }
     fetchTheologians().then(setTheologians);
-    fetchChats(accessToken).then(setChats);
-  }, [accessToken]);
+    fetchChats().then(setChats);
+  }, []);
 
-  const deleteChatThenFetch = (id: string) =>
-    deleteChat(id, accessToken).then(() => fetchChats(accessToken).then(setChats));
+  const deleteChatThenFetch = (id: string) => deleteChat(id).then(() => fetchChats().then(setChats));
 
   return (
     <div className="chats-page">

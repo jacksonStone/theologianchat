@@ -13,9 +13,8 @@ const fetchChatDetail = async (
   setChatDetail: (chatDetail: ChatDetail) => void,
   setTheologian: (theologian: Theologian) => void,
   setOnGoingMessage: (sending: boolean) => void,
-  accessToken: string,
 ) => {
-  return Promise.all([getChat(chatId, accessToken), fetchTheologians(), fetchOnGoingMessage(chatId, accessToken)]).then(
+  return Promise.all([getChat(chatId), fetchTheologians(), fetchOnGoingMessage(chatId)]).then(
     ([chatDetail, theologians, onGoingMessage]) => {
       setTheologian(theologians.find((t: Theologian) => t._id === chatDetail.theologianId) || defaultTheologian);
       setChatDetail(chatDetail);
@@ -36,13 +35,12 @@ function ChatDetailView() {
   });
   const [theologian, setTheologian] = useState<Theologian>(defaultTheologian);
   const [newMessage, setNewMessage] = useState<string>('');
-  const [accessToken, setAccessToken] = useState<string>('');
   const [onGoingMessage, setOnGoingMessage] = useState<boolean>(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
       if (onGoingMessage) {
-        fetchChatDetail(chatId as string, setChatDetail, setTheologian, setOnGoingMessage, accessToken);
+        fetchChatDetail(chatId as string, setChatDetail, setTheologian, setOnGoingMessage);
       } else {
         clearInterval(interval);
       }
@@ -51,24 +49,8 @@ function ChatDetailView() {
     return () => clearInterval(interval); // Clean up interval when the component is unmounted
   }, [onGoingMessage]);
   useEffect(() => {
-    if (!accessToken) {
-      return;
-    }
-    fetchChatDetail(chatId as string, setChatDetail, setTheologian, setOnGoingMessage, accessToken);
-  }, [chatId, accessToken]);
-
-  useEffect(() => {
-    async function getAccessToken() {
-      // const audience = process.env.REACT_APP_AUTH0_AUDIENCE as string;
-      const accessToken = await getAccessTokenSilently();
-      if (!accessToken) {
-        logout({ logoutParams: { returnTo: window.location.origin } });
-        return;
-      }
-      setAccessToken(accessToken);
-    }
-    getAccessToken();
-  }, [getAccessTokenSilently]);
+    fetchChatDetail(chatId as string, setChatDetail, setTheologian, setOnGoingMessage);
+  }, [chatId]);
 
   const handleBack = () => {
     navigate('/chats'); // Goes back to the chats
@@ -82,8 +64,8 @@ function ChatDetailView() {
     setChatDetail(updatedChatDetail);
     setNewMessage('');
     setOnGoingMessage(true);
-    postToChat(chatId || '', newMessage, accessToken).then(() => {
-      fetchChatDetail(chatId as string, setChatDetail, setTheologian, setOnGoingMessage, accessToken);
+    postToChat(chatId || '', newMessage).then(() => {
+      fetchChatDetail(chatId as string, setChatDetail, setTheologian, setOnGoingMessage);
     });
   };
 
