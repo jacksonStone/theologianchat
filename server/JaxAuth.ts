@@ -49,9 +49,9 @@ export class JaxAuth<User> {
         // Encrypted cookie with nonce and hmac
         const cookieContent = [nonce, experation, crypted, hmac].join(':')
         if(this.useDevCookie) {
-            return this.cookieName+"="+encodeURIComponent(cookieContent)+'; Max-Age=' + this.experation + "; SameSite=None";
+            return this.cookieName+"="+encodeURIComponent(cookieContent)+'; Max-Age=' + this.experation + "; SameSite=Lax; Path=/";
         }
-        return this.cookieName+"="+encodeURIComponent(cookieContent)+'; HttpOnly; Max-Age=' + this.experation + "; SameSite=Strict; Secure";
+        return this.cookieName+"="+encodeURIComponent(cookieContent)+'; HttpOnly; Max-Age=' + this.experation + "; SameSite=Strict; Secure; Path=/";
     }
     /**
      * Takes the request "cookie" header string contents (raw), and will extract the auth header, verifying it's contents are legitimate and unexpired
