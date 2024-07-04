@@ -4,7 +4,7 @@
   "description": "A chat interface to talk with various prolific theologians",
   "main": "index.js",
   "scripts": {
-    "build": "rm -rf ./server-build && cd client && npm install && npm run build && cd ../server && npm install && npm run build && cp -r node_modules ../server-build && cp -r public ../server-build",
+    "build": "rm -rf ./server-build && cd client && npm install && npm run build && cd ../server && npm install && npm run build && rm -rf node_modules && npm install --production && cp -r node_modules ../server-build && cp -r public ../server-build",
     "start": "cd server-build && NODE_ENV=production node index.js"
   },
   "repository": {

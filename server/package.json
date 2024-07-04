@@ -14,13 +14,10 @@
   },
   "author": "",
   "license": "NONE",
-  "dependencies": {
+  "devDependencies": {
+    "@types/body-parser": "^1.19.5",
+    "@types/express": "^4.17.21",
     "@types/node": "^20.3.3",
-    "express": "^4.18.2",
-    "express-oauth2-jwt-bearer": "^1.5.0",
-    "mongodb": "^5.6.0",
-    "openai": "^3.3.0",
-    "@types/express": "^4.17.17",
     "@typescript-eslint/eslint-plugin": "^5.61.0",
     "@typescript-eslint/parser": "^5.61.0",
     "eslint": "^8.44.0",
@@ -29,5 +26,10 @@
     "prettier": "^2.8.8",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongodb": "^5.6.0",
+    "openai": "^3.3.0"
   }
 }
