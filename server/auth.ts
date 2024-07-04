@@ -9,8 +9,8 @@ const auth: JaxAuth<User> = new JaxAuthBuilder<User>()
     .setUserHashPasswordField(user => user.hashedPassword)
     // HMACKey and EncryptionKey are stored in hex in the environment variables
     // EncryptionKey is 16 bytes long, HMACKey is 32 bytes long
-    .setHMACKey(Buffer.from(process.env.HMAC_KEY as string, 'hex').toString('utf16le'))
-    .setEncryptionSecret(Buffer.from(process.env.ENCRYPTION_KEY as string, 'hex').toString('utf16le'))
+    .setHMACKey((process.env.HMAC_KEY as string).substring(0, 32))
+    .setEncryptionSecret((process.env.ENCRYPTION_KEY as string).substring(0, 16))
     .setStringifiedCookieContents(user => JSON.stringify({userId: user.userId, userEmail: user.userEmail}))
     .setCookieName('auth')
     .setUseDevelopmentCookie(process.env.NODE_ENV !== "production")
