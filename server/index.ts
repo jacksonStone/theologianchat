@@ -36,21 +36,6 @@ function getUser(req: express.Request): SAFE_user|undefined {
 
 // middleware to parse request bodies
 app.use(bodyParser.json());
-// Caused infinite redirect loop
-app.use(function(request, response, next) {
-  if (process.env.NODE_ENV !== 'development') {
-    // Heroku supplies this header and it communicates the original http/https protocol used
-    const httpOrHttps = request.headers["x-forwarded-proto"] as string;
-    if (!httpOrHttps) {
-      next();
-      return;
-    }
-    if (httpOrHttps.toLowerCase().indexOf("https") === -1) {
-      return response.redirect("https://" + request.headers.host + request.url);
-    }
-  }
-  next();
-})
 
 app.post('/api/user/create', async (req: express.Request, res: express.Response, next: NextFunction) => {
   console.log("Create!");
