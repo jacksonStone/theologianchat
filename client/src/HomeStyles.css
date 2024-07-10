@@ -55,10 +55,10 @@
   color: white;
   padding: 10px 20px;
   border-radius: 4px;
-  margin-top: 1rem;
   border: none;
   cursor: pointer;
   float: right;
+  margin: 1rem 15px;
 }
 
 .Home-button-2 {
@@ -88,6 +88,6 @@
   transform: scale(1.05); /* scale up the button */
   background-color: #f2f1e7; /* change color */
 }
-.Home-input-holder input {
-  margin: 0 10px;
+input {
+  margin: 0 10px !important;
 }
