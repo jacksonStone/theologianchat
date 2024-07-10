@@ -88,3 +88,6 @@
   transform: scale(1.05); /* scale up the button */
   background-color: #f2f1e7; /* change color */
 }
+.Home-input-holder input {
+  margin: 0 10px;
+}

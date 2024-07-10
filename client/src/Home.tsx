@@ -42,8 +42,8 @@ function Home() {
           <div className="Home-banner-text">
             <h1>Welcome to Theologian.chat!</h1>
             <p>
-              Dive into the wisdom of the past. Chat with an AI trained to answer like some of the greatest minds in the
-              Christian Tradition. <b>FOR FREE. (THIS IS IN BETA)</b>
+              Dive into the wisdom of the past. Chat with an AI designed to answer like some of the greatest minds in
+              the Christian Tradition. <b>FOR FREE. (THIS IS IN BETA)</b>
             </p>
             <div className="Home-input-holder">
               <input
