@@ -1,0 +1,12 @@
+[Unit]
+Description=TheologianChat
+After=network.target
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu
+ExecStart=/home/ubuntu/.nvm/versions/node/v20.15.0/bin/node /home/ubuntu/theologian_chat/server-build/index.js
+EnvironmentFile=/home/ubuntu/env
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target
