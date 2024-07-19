@@ -1,7 +1,7 @@
 // CreateChatPage.js
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Theologian } from './shared';
+import { Theologian, ping } from './shared';
 import { fetchTheologians, createChat } from './api';
 
 function CreateChatPage() {
@@ -9,6 +9,7 @@ function CreateChatPage() {
   const [selectedTheologian, setSelectedTheologian] = useState<string>('');
   const navigate = useNavigate();
   useEffect(() => {
+    ping();
     fetchTheologians().then(setTheologians);
   }, []);
 

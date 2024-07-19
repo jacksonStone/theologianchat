@@ -31,6 +31,10 @@ interface ChatDetail {
   theologianId: string;
 }
 
+function ping() {
+  fetch(window.location.origin + window.location.pathname + '/_ping');
+}
+
 export type { Theologian, ChatPreview, Message, ChatDetail, CreateChatResponse };
 
-export { defaultTheologian };
+export { defaultTheologian, ping };

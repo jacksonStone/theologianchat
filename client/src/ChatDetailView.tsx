@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './App.css';
-import { ChatDetail, Theologian, defaultTheologian } from './shared';
+import { ChatDetail, Theologian, defaultTheologian, ping } from './shared';
 import { getChat, fetchTheologians, postToChat, fetchOnGoingMessage } from './api';
-import { useAuth0 } from '@auth0/auth0-react';
 
 const formattedMessage = (message: string) => {
   return { __html: message.replace(/\n/g, '<br />') };
@@ -25,8 +24,6 @@ const fetchChatDetail = async (
 
 // TODO:: Don't refecth Theologians if navigating from a different page.
 function ChatDetailView() {
-  const { getAccessTokenSilently, logout } = useAuth0();
-
   const { chatId } = useParams<{ chatId: string }>();
   const navigate = useNavigate();
   const [chatDetail, setChatDetail] = useState<ChatDetail>({
@@ -50,6 +47,7 @@ function ChatDetailView() {
   }, [onGoingMessage]);
   useEffect(() => {
     fetchChatDetail(chatId as string, setChatDetail, setTheologian, setOnGoingMessage);
+    ping();
   }, [chatId]);
 
   const handleBack = () => {
