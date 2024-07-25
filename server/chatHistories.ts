@@ -1,6 +1,6 @@
 import { getDb } from './mongodb';
 import { ObjectId, UpdateResult, InsertOneResult, DeleteResult } from 'mongodb';
-import { sendTextToChatGPT } from './chatgpt';
+import { sendTextToLlm } from './llmApi';
 import { getTheologian } from './theologians';
 import { createJob, resolveJob, cancelJob } from './batchJobs';
 
@@ -31,31 +31,32 @@ async function appendUserAndChatGPTResponse(chatId: string, userId: string, mess
     // TODO:: Better error handling
     throw new Error('Theologian not found');
   }
-  
+
   const userMessage: Message = {
     content: message,
     author: 'user',
   };
-  let aiReply = "";
+  let aiReply = '';
   await Promise.all([
     createJob(chatId, userId, chat.messages.concat([userMessage])),
-    appendChatMessages(chatId, userId, [userMessage])
+    appendChatMessages(chatId, userId, [userMessage]),
   ]);
-  sendTextToChatGPT(message, theologian.prompt, chat.messages).then(reply => {
-    aiReply = reply;
-    return appendChatMessages(chatId, userId, [
-      {
-        content: reply ,
-        author: 'theologian',
-      },
-    ])
-  })
- .then(async () => {
-    return resolveJob(chatId, userId, aiReply);
-  })
-  .catch(() => {
-    cancelJob(chatId, userId);
-  });
+  sendTextToLlm(message, theologian.prompt, chat.messages)
+    .then((reply) => {
+      aiReply = reply;
+      return appendChatMessages(chatId, userId, [
+        {
+          content: reply,
+          author: 'theologian',
+        },
+      ]);
+    })
+    .then(async () => {
+      return resolveJob(chatId, userId, aiReply);
+    })
+    .catch(() => {
+      cancelJob(chatId, userId);
+    });
 }
 
 async function appendChatMessages(id: string, userId: string, messages: Message[]): Promise<UpdateResult> {

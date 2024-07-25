@@ -3,12 +3,12 @@ import { InsertOneResult } from 'mongodb';
 
 interface GPTRequest {
   _id: string;
-  userId: string,
+  userId: string;
   chatId: string;
   sent: Message[];
-  response: string,
-  timeSent: number,
-  timeAnswered: number
+  response: string;
+  timeSent: number;
+  timeAnswered: number;
 }
 interface Message {
   content: string;
@@ -16,14 +16,14 @@ interface Message {
 }
 
 async function createJob(chatId: string, userId: string, messages: Message[]): Promise<InsertOneResult> {
-    const chatRequests = getDb().collection('ChatRequests');
-    return chatRequests.insertOne({
-        chatId,
-        userId,
-        sent: messages,
-        timeSent: Date.now(),
-        timeAnswered: 0
-    })
+  const chatRequests = getDb().collection('ChatRequests');
+  return chatRequests.insertOne({
+    chatId,
+    userId,
+    sent: messages,
+    timeSent: Date.now(),
+    timeAnswered: 0,
+  });
 }
 
 async function readOnGoingJob(chatId: string, userId: string): Promise<boolean> {
@@ -34,16 +34,18 @@ async function readOnGoingJob(chatId: string, userId: string): Promise<boolean> 
 }
 async function cancelJob(chatId: string, userId: string): Promise<any> {
   const chatRequests = getDb().collection('ChatRequests');
-  return chatRequests.deleteOne({chatId, userId, timeAnswered: 0 });
+  return chatRequests.deleteOne({ chatId, userId, timeAnswered: 0 });
 }
 async function resolveJob(chatId: string, userId: string, response: string): Promise<any> {
-    const chatRequests = getDb().collection('ChatRequests');
+  const chatRequests = getDb().collection('ChatRequests');
 
-    return chatRequests.updateOne({chatId, userId, timeAnswered: 0 }, {
-        response,
-        timeAnswered: Date.now()
-    })
+  return chatRequests.updateOne(
+    { chatId, userId, timeAnswered: 0 },
+    {
+      response,
+      timeAnswered: Date.now(),
+    },
+  );
 }
-
 
 export { createJob, readOnGoingJob, resolveJob, cancelJob };

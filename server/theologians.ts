@@ -24,9 +24,7 @@ async function getTheologians(): Promise<PartialTheologian[]> {
 }
 
 async function deleteTestChats(): Promise<any> {
-  return getDb()
-    .collection('ChatHistories')
-    .deleteMany({userId:"test"})
+  return getDb().collection('ChatHistories').deleteMany({ userId: 'test' });
 }
 
 async function upsertTheologian(name: string, prompt: string, description: string, imageUrl: string): Promise<void> {

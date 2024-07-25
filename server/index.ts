@@ -9,9 +9,7 @@ import {
   getChatList,
   deleteChatHistory,
 } from './chatHistories';
-import {
-  readOnGoingJob
-} from "./batchJobs";
+import { readOnGoingJob } from './batchJobs';
 import assert from 'assert';
 import { getTheologians } from './theologians';
 import { ObjectId } from 'mongodb';
@@ -21,15 +19,15 @@ import auth from './auth';
 const app = express();
 
 type SAFE_user = {
-  userId: string
-  userEmail: string
-}
-function getUser(req: express.Request): SAFE_user|undefined {
-  const rawCookieHeader = req.headers.cookie
+  userId: string;
+  userEmail: string;
+};
+function getUser(req: express.Request): SAFE_user | undefined {
+  const rawCookieHeader = req.headers.cookie;
   try {
-    const cookieContents = auth.attemptCookieDecryption(rawCookieHeader)
+    const cookieContents = auth.attemptCookieDecryption(rawCookieHeader);
     return JSON.parse(cookieContents) as SAFE_user;
-  } catch(e) {
+  } catch (e) {
     console.log(e);
   }
 }
@@ -38,68 +36,68 @@ function getUser(req: express.Request): SAFE_user|undefined {
 app.use(bodyParser.json());
 
 app.post('/api/user/create', async (req: express.Request, res: express.Response, next: NextFunction) => {
-  console.log("Create!");
+  console.log('Create!');
 
   const email = req.body.email;
   const password = req.body.password;
   if (!email || !password) {
-    return res.status(400).send({error: "failed to provide email and password"});
+    return res.status(400).send({ error: 'failed to provide email and password' });
   }
   const currentUser = await getUserByEmail(email);
-  if(currentUser) {
-    return res.status(400).send({error: "email already allocated"});
+  if (currentUser) {
+    return res.status(400).send({ error: 'email already allocated' });
   }
   await createUser(email, password);
   const newUser = await getUserByEmail(email);
   const cookieHeader = await auth.attemptLoginAndGetCookie(newUser, password);
-  res.setHeader("Set-Cookie", cookieHeader);
-  res.send("ok");
+  res.setHeader('Set-Cookie', cookieHeader);
+  res.send('ok');
   next();
-})
-app.post("/api/user/login", async (req: express.Request, res: express.Response, next: NextFunction) => {
-  console.log("Login");
+});
+app.post('/api/user/login', async (req: express.Request, res: express.Response, next: NextFunction) => {
+  console.log('Login');
   const email = req.body.email;
   const password = req.body.password;
   if (!email || !password) {
-    return res.status(400).send({error: "failed to provide email and password"});
+    return res.status(400).send({ error: 'failed to provide email and password' });
   }
   try {
     const currentUser = await getUserByEmail(email);
-    if(!currentUser) {
-      return res.status(400).send({error: "no user"});
+    if (!currentUser) {
+      return res.status(400).send({ error: 'no user' });
     }
     const cookie = await auth.attemptLoginAndGetCookie(currentUser, password);
-    res.setHeader("Set-Cookie", cookie);
-    res.send("ok");
-  } catch(e) {
+    res.setHeader('Set-Cookie', cookie);
+    res.send('ok');
+  } catch (e) {
     next(e);
   }
   next();
-
-})
+});
 app.get('/api/chat/job/:id', async (req: express.Request, res: express.Response, next: NextFunction) => {
   const chatId: string = req.params.id;
   if (!ObjectId.isValid(chatId)) {
     return res.status(400).send({ error: 'Invalid chat id' });
   }
   const user = getUser(req);
-  if(!user) {
-    return res.redirect("https://" + req.headers.host);
+  if (!user) {
+    return res.redirect('https://' + req.headers.host);
   }
   const userId = user.userId;
-  readOnGoingJob(chatId, userId).then((result) => {
-    res.send(result)
-  }).catch(next);
-})
+  readOnGoingJob(chatId, userId)
+    .then((result) => {
+      res.send(result);
+    })
+    .catch(next);
+});
 // add a new chat message in the chat history
 // will get a reply from chatGPT and save that as well as return it to the user.
 app.post('/api/chat/:id', async (req: express.Request, res: express.Response, next: NextFunction) => {
-  
   const chatId: string = req.params.id;
   const message: string = req.body.message;
   const user = getUser(req);
-  if(!user) {
-    return res.redirect("https://" + req.headers.host);
+  if (!user) {
+    return res.redirect('https://' + req.headers.host);
   }
   const userId = user.userId;
 
@@ -117,8 +115,8 @@ app.post('/api/chat/:id', async (req: express.Request, res: express.Response, ne
 // get chat history so far
 app.get('/api/chat/:id', async (req: express.Request, res: express.Response, next: NextFunction) => {
   const user = getUser(req);
-  if(!user) {
-    return res.redirect("https://" + req.headers.host);
+  if (!user) {
+    return res.redirect('https://' + req.headers.host);
   }
   const userId = user.userId;
   const chatId: string = req.params.id;
@@ -137,8 +135,8 @@ app.get('/api/chat/:id', async (req: express.Request, res: express.Response, nex
 app.delete('/api/chat/:id', async (req: express.Request, res: express.Response, next: NextFunction) => {
   const chatId: string = req.params.id;
   const user = getUser(req);
-  if(!user) {
-    return res.redirect("https://" + req.headers.host);
+  if (!user) {
+    return res.redirect('https://' + req.headers.host);
   }
   const userId = user.userId;
   if (!ObjectId.isValid(chatId)) {
@@ -154,11 +152,11 @@ app.delete('/api/chat/:id', async (req: express.Request, res: express.Response, 
 app.get('/api/chats', async (req: express.Request, res: express.Response, next: NextFunction) => {
   // get chat history based on id and return it
   const user = getUser(req);
-  if(!user) {
-    return res.redirect("https://" + req.headers.host);
+  if (!user) {
+    return res.redirect('https://' + req.headers.host);
   }
   const userId = user.userId;
-  
+
   getChatList(userId)
     .then((result) => {
       res.send(result);
@@ -170,8 +168,8 @@ app.get('/api/chats', async (req: express.Request, res: express.Response, next: 
 app.post('/api/chat', async (req: express.Request, res: express.Response, next: NextFunction) => {
   const theologianId: string = req.body.theologianId;
   const user = getUser(req);
-  if(!user) {
-    return res.redirect("https://" + req.headers.host);
+  if (!user) {
+    return res.redirect('https://' + req.headers.host);
   }
   const userId = user.userId;
 

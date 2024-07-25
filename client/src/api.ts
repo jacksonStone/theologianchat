@@ -1,8 +1,5 @@
 import { ChatDetail, Theologian, ChatPreview, CreateChatResponse } from './shared';
 
-function ping() {
-  fetch(window.location.origin + window.location.pathname + '/_ping');
-}
 function getChat(chatId: string): Promise<ChatDetail> {
   return fetch('/api/chat/' + chatId, { credentials: 'include' }).then((response) => response.json());
 }
