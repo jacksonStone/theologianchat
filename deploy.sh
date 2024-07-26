@@ -1,6 +1,6 @@
 #!/bin/bash
-npm run build
-zip -r -q -X theologian_chat.zip server-build
+npm run build || { echo "Failed to build"; exit 1; }
+zip -r -q -X theologian_chat.zip server-build || { echo "Failed to zip new files"; exit 1; }
 scp -i $EC2_PEM_PATH theologian_chat.zip ubuntu@$EC2_PUBLIC_IP:/home/ubuntu/.temp/
 ssh -i $EC2_PEM_PATH ubuntu@$EC2_PUBLIC_IP << EOF
   mv ./.temp/theologian_chat.zip . || { echo "Failed to move the file"; exit 1; }
