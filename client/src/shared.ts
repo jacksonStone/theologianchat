@@ -32,7 +32,7 @@ interface ChatDetail {
 }
 
 function ping() {
-  fetch(window.location.origin + window.location.pathname + '/_ping');
+  fetch(window.location.origin + window.location.pathname + '/____reserved/_ping');
 }
 
 export type { Theologian, ChatPreview, Message, ChatDetail, CreateChatResponse };
