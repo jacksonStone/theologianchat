@@ -16,9 +16,5 @@
   "bugs": {
     "url": "https://github.com/jacksonStone/theologianchat/issues"
   },
-  "homepage": "https://github.com/jacksonStone/theologianchat#readme",
-  "devDependencies": {
-    "@types/node": "^22.5.1",
-    "typescript": "^5.5.4"
-  }
+  "homepage": "https://github.com/jacksonStone/theologianchat#readme"
 }
